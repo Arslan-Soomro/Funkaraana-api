@@ -8,4 +8,4 @@ const pool = mysql.createPool({
     database: 'funk'
 });
 
-export default pool;
+export default pool.promise();

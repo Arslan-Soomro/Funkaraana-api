@@ -1,6 +1,7 @@
 import db from "./database";
 import { validateUserData, hashEncrypt } from "./utils";
 import { USER_ATTRS } from "./global";
+import { USER_DATA } from "./interfaces";
 
 const createUserTable = async (drop = false) => {
     try{
@@ -13,19 +14,19 @@ const createUserTable = async (drop = false) => {
     }
 };
 
-export const getUserBy = async (byAttr, usernameStr, getAll = false) => {
+export const getUserBy = async (byAttr: string, byAttrVal: string | number, getAll = false) => {
     const getUserQuery = getAll ? `SELECT * FROM users WHERE ${byAttr} = ? LIMIT 1` : `SELECT ${USER_ATTRS} FROM users WHERE ${byAttr} = ? LIMIT 1`;
 
-    const [rows] = await db.execute(getUserQuery, [usernameStr]);
-    return rows[0];
+    const [rows] =  await db.execute(getUserQuery, [byAttrVal]);
+    return (<object[]> rows)[0];
 }
 
-export const userExists = async (usernameStr) => {
+export const userExists = async (usernameStr: string) => {
     const rows = await getUserBy("username", usernameStr);
-    return rows != 0;//If exist then true else false
+    return (<object[]> rows).length != 0;//If exist then true else false
 }
 
-export const insertIntoUser = async (data) => {    
+export const insertIntoUser = async (data: USER_DATA) => {    
     //Data -> name, email, username, password
     const validationRes = validateUserData(data);
     if(!validationRes.error){

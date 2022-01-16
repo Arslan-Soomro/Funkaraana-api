@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 
 import userRouter from "./routes/user.route";
+import { getUserBy } from "./utils/db_utils";
 
 const app = express();
 const PORT = process.env.PORT || 5000;

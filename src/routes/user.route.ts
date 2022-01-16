@@ -8,6 +8,7 @@ import { insertIntoUser, getUserBy } from '../utils/db_utils';
 import { validateName, validatePass, verifyToken } from '../utils/utils';
 import db from '../utils/database';
 import { SERVER_ERR, JWT_SECRET } from '../utils/global';
+import { USER_DATA_ALL } from "../utils/interfaces";
 
 
 router.get('/', async (req, res) => {
@@ -16,7 +17,7 @@ router.get('/', async (req, res) => {
         const [rows] = await db.execute("SELECT * FROM users");
         
         let resMsg = "Found Users";
-        if(rows.length == 0){
+        if((<object[]> rows).length == 0){
             resMsg = "There are no Users";
         }
 
@@ -54,17 +55,18 @@ router.post('/login', async (req, res) => {
             if(!tokenData){
                 res.status(401).json({message: "Invalid Token"});
             }else{
-                userData = await getUserBy("id", tokenData.id);
+                const userData = await getUserBy("id", tokenData.id);
                 res.status(200).json({message: "Token Authenticated, Access Granted", data: userData});
             }
 
         }else if(req.body && validateName(req.body.username) && validatePass(req.body.password)){
             //Get User Details
-            const rows = await getUserBy("username", req.body.username);
+            const rows = <USER_DATA_ALL> await getUserBy("username", req.body.username, true);
             //Verify Username and Password
-            if(rows.length != 0 && await bcrypt.compare(req.body.password, rows.password)){
+
+            if(rows && await bcrypt.compare(req.body.password, rows.password)){
                 //Generate and respond with a token
-                const accessToken = await jwt.sign({id: rows.id, username: rows.username}, JWT_SECRET, {expiresIn: '24h'});
+                const accessToken = jwt.sign({id: rows.id, username: rows.username}, JWT_SECRET, {expiresIn: '24h'});
                 res.status(200).json({message: "Login Succesful", data: {token: accessToken}});
             }else{
                 res.status(400).json({message: err_message});
