@@ -1,13 +1,13 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
 
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
-const { insertIntoUser, getUserBy } = require('../utils/db_utils');
-const { validateName, validatePass, verifyToken } = require('../utils/utils')
-const db = require('../utils/database');
-const { SERVER_ERR, JWT_SECRET } = require("../utils/global");
+import { insertIntoUser, getUserBy } from '../utils/db_utils';
+import { validateName, validatePass, verifyToken } from '../utils/utils';
+import db from '../utils/database';
+import { SERVER_ERR, JWT_SECRET } from '../utils/global';
 
 
 router.get('/', async (req, res) => {
@@ -41,8 +41,6 @@ router.post('/signup', async (req, res) => {
         res.status(500).json(SERVER_ERR);
     }
 });
-
-//TODO deal with token submission
 
 router.post('/login', async (req, res) => {
     try{
@@ -80,4 +78,4 @@ router.post('/login', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

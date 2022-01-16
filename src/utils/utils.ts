@@ -1,7 +1,7 @@
-bcrypt = require("bcrypt");  
-jwt = require("jsonwebtoken");
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
-const { JWT_SECRET } = require("./global");
+import { JWT_SECRET } from "./global";
 
 const isOfType = (str, type) => {
     if(str && typeof(str) === type){
@@ -17,19 +17,19 @@ const validateEmail = (email) => {
     return emailRegex.test(email) ? true : false;
 }
 
-const validateName = (name) => {
+export const validateName = (name) => {
     if(!isOfType(name, "string")) return false;
 
     return ((name.trim()).length > 1) ? true : false
 };
 
-const validatePass = (pass) => {
+export const validatePass = (pass) => {
     if(!isOfType(pass, "string")) return false;
 
     return pass.trim().length >= 8 ? true : false;
 };
 
-const validateUserData = (uData) => {
+export const validateUserData = (uData) => {
     if(uData){
         if(uData.name && uData.username && uData.password && uData.email){
             if(validateName(uData.name)){
@@ -56,13 +56,13 @@ const validateUserData = (uData) => {
     return ({message: 'User Data not Provided', error: true});
 }
 
-const hashEncrypt = async (strToEncrypt) => {
+export const hashEncrypt = async (strToEncrypt) => {
     const saltRounds = 10;
     const encryptedStr = await bcrypt.hash(strToEncrypt, saltRounds);
     return encryptedStr;
 };
 
-const verifyToken = (token) => {
+export const verifyToken = (token) => {
     try{
         const data = jwt.verify(token, JWT_SECRET);
         return data;
@@ -71,5 +71,3 @@ const verifyToken = (token) => {
     }
     return null;
 }
-
-module.exports = { validateName, validatePass, validateUserData, hashEncrypt, verifyToken };

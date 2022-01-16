@@ -1,14 +1,10 @@
-const express = require("express");
-const cors = require("cors");
+import express from "express";
+import cors from "cors";
 
-const db = require('./utils/database');
-
-const userRouter = require("./routes/user.route");
+import userRouter from "./routes/user.route";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-
-//TODO Convert To Typescript
 
 app.use(cors());
 app.use(express.json());

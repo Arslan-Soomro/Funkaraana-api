@@ -1,4 +1,4 @@
-const mysql = require('mysql2');
+import mysql from "mysql2";
 
 //Create a pooling connection
 const pool = mysql.createPool({
@@ -8,4 +8,4 @@ const pool = mysql.createPool({
     database: 'funk'
 });
 
-module.exports = pool.promise();
+export default pool;

@@ -1,5 +1,3 @@
-const SERVER_ERR = { message : "Server Occured At Error"};
-const JWT_SECRET = "blahblahblah";
-const USER_ATTRS = "id, name, username, email, type"
-
-module.exports = { SERVER_ERR, JWT_SECRET, USER_ATTRS }
+export const SERVER_ERR = { message : "Server Occured At Error"};
+export const JWT_SECRET = "blahblahblah";
+export const USER_ATTRS = "id, name, username, email, type";

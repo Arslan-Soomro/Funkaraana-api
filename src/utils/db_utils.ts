@@ -1,6 +1,6 @@
-const db = require('./database');
-const { validateUserData, hashEncrypt } = require("./utils");
-const { USER_ATTRS } = require("./global");
+import db from "./database";
+import { validateUserData, hashEncrypt } from "./utils";
+import { USER_ATTRS } from "./global";
 
 const createUserTable = async (drop = false) => {
     try{
@@ -13,19 +13,19 @@ const createUserTable = async (drop = false) => {
     }
 };
 
-const getUserBy = async (byAttr, usernameStr, getAll = false) => {
+export const getUserBy = async (byAttr, usernameStr, getAll = false) => {
     const getUserQuery = getAll ? `SELECT * FROM users WHERE ${byAttr} = ? LIMIT 1` : `SELECT ${USER_ATTRS} FROM users WHERE ${byAttr} = ? LIMIT 1`;
 
     const [rows] = await db.execute(getUserQuery, [usernameStr]);
     return rows[0];
 }
 
-const userExists = async (usernameStr) => {
+export const userExists = async (usernameStr) => {
     const rows = await getUserBy("username", usernameStr);
     return rows != 0;//If exist then true else false
 }
 
-const insertIntoUser = async (data) => {    
+export const insertIntoUser = async (data) => {    
     //Data -> name, email, username, password
     const validationRes = validateUserData(data);
     if(!validationRes.error){
@@ -53,5 +53,3 @@ insertIntoUser({
 });
 */
 //getAllUsers();
-
-module.exports = { insertIntoUser, userExists, getUserBy }
