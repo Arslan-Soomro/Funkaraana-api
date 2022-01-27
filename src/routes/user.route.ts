@@ -4,13 +4,25 @@ const router = express.Router();
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-import { insertIntoUser, getUserBy } from '../utils/db_utils';
+import { insertIntoUser, getUserBy, createUserTable } from '../utils/db_utils';
 import { validateName, validatePass, verifyToken } from '../utils/utils';
 import db from '../utils/database';
 import { SERVER_ERR, JWT_SECRET } from '../utils/global';
-import { USER_DATA_ALL } from "../utils/interfaces";
+import { USER_DATA, USER_DATA_ALL } from "../utils/customTypes";
+import { stringify } from 'querystring';
 
+//Route for creating user table
+router.get('/createtable', async (req, res) => {
+    try{
+        createUserTable();
+        res.status(200).json({message: "Table Created Succesfully"});
+    }catch(err){
+        res.status(500).json(SERVER_ERR);     
+    }
+});
 
+//Route for getting all users
+//TODO hide this route
 router.get('/', async (req, res) => {
 
     try{
@@ -28,14 +40,23 @@ router.get('/', async (req, res) => {
     }
 });
 
+//Route to create a user
 router.post('/signup', async (req, res) => {
-
     try{
-        const result = await insertIntoUser(req.body);
+
+        const userData: USER_DATA = {
+            name: req.body.name,
+            username: req.body.username,
+            email: req.body.email,
+            password: req.body.password,
+            type: "B"
+        }
+
+        const result: any = await insertIntoUser(userData);
         if(result.error){
             res.status(400).json({message: result.message});
         }else{
-            res.status(200).json({message: "User Inserted Successfully"});
+            res.status(200).json({message: "User Signed Up Successfully"});
         }
     }catch(err){
         console.log("Error@User:Signup: " + err.message);
@@ -43,6 +64,7 @@ router.post('/signup', async (req, res) => {
     }
 });
 
+//Route to verify a user and generate a token
 router.post('/login', async (req, res) => {
     try{
         const err_message = "Invalid Username or Password";
