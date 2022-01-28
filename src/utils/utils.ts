@@ -22,7 +22,7 @@ const validateEmail = (email: string) => {
 export const validateName = (name: string) => {
     if(!isOfType(name, "string")) return false;
 
-    return ((name.trim()).length > 1) ? true : false
+    return (name && (name.trim()).length > 1) ? true : false
 };
 
 export const validatePass = (pass: string) => {

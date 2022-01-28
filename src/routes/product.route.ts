@@ -10,14 +10,17 @@ import db from "../utils/database";
 import { SERVER_ERR } from "../utils/global";
 import { validateProductData, verifyToken } from "../utils/utils";
 import { PRODUCT_DATA } from "../utils/customTypes";
+import upload from "../utils/multerUpload";
 
 //Middleware to unfold token data
 router.use((req, res, next) => {
   //If request contains a token, verify it
   if (req.body.token) {
     const tokenData = verifyToken(req.body.token);
+
     if (tokenData != null) {
       //token verified, pass down the user data
+
       req.body.USER = { id: tokenData.id, username: tokenData.username };
       next();
     } else {
@@ -47,31 +50,44 @@ router.get("/all", async (req, res) => {
 });
 
 //Route to insert a product
-router.post("/", async (req, res) => {
+//The token handling is done separately here because req.body is only defined here with image because of multer
+router.post("/", upload.single("image"), async (req, res) => {
   try {
     if (req.body.token) {
-      const prodData: PRODUCT_DATA = {
-        user_id: req.body.USER.id,
-        name: req.body.name,
-        description: req.body.description,
-        price: req.body.price,
-        image: req.body.image,
-      };
-
-      const validationRes = validateProductData(prodData);
-
-      //There is no validation Error
-      if (!validationRes.error) {
-        insertIntoProduct(prodData);
-        res.status(200).json({ message: "Product Added Successfully" });
+      const tokenData = verifyToken(req.body.token);
+      if (tokenData === null) {
+        res.status(401).json({ message: "Invalid Token" });
+        return;
       } else {
-        res.status(400).json({ message: validationRes.message });
+        req.body.USER = { id: tokenData.id };
       }
     } else {
       res.status(401).json({ message: "Invalid Token" });
+      return;
+    }
+
+    const prodData: PRODUCT_DATA = {
+      user_id: req.body.USER.id,
+      name: req.body.name,
+      description: req.body.description,
+      price: parseFloat(req.body.price),
+      image: req.file?.filename!,
+    };
+    
+    console.log("Debugger");
+
+    const validationRes = validateProductData(prodData);
+    console.log("Error Here");
+
+    //There is no validation Error
+    if (!validationRes.error) {
+      insertIntoProduct(prodData);
+      res.status(200).json({ message: "Product Added Successfully" });
+    } else {
+      res.status(400).json({ message: validationRes.message });
     }
   } catch (err) {
-    console.log("Error@User:Signup: " + err.message);
+    console.log("Error@Add:Product " + err.message);
     res.status(500).json(SERVER_ERR);
   }
 });
