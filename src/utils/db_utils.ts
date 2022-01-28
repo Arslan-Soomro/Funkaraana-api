@@ -103,6 +103,7 @@ export const insertIntoUser = async (data: USER_DATA) => {
   return validationRes;
 };
 
+/*
 export const insertIntoProduct = async (data: PRODUCT_DATA) => {
   //Data -> user_id, name, description, price, image
   const validationRes = validateProductData(data)!;
@@ -110,20 +111,25 @@ export const insertIntoProduct = async (data: PRODUCT_DATA) => {
     //Check if user id is correct and then insert
 
     if (await userExistsById(data.user_id)) {
-      const insertionQuery =
-        "INSERT INTO products (userID, name, description, price, image) VALUES (?, ?, ?, ?, ?)";
-      await db.execute(insertionQuery, [
-        data.user_id,
-        data.name,
-        data.description,
-        data.price,
-        data.image,
-      ]);
-      return { message: "Product Inserted Succesfully" };
-    }
+      
   }
   //Incase there is an error return back the message
   return validationRes;
+};*/
+
+export const insertIntoProduct = async (data: PRODUCT_DATA) => {
+  if (data) {
+    const insertionQuery =
+      "INSERT INTO products (userID, name, description, price, image) VALUES (?, ?, ?, ?, ?)";
+    await db.execute(insertionQuery, [
+      data.user_id,
+      data.name,
+      data.description,
+      data.price,
+      data.image,
+    ]);
+    return { message: "Product Inserted Succesfully" };
+  }
 };
 
 //createUserTable();
