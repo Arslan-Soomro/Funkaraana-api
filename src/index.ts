@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import upload from "./utils/multerUpload";
 
 import userRouter from "./routes/user.route";
 import productRouter from "./routes/product.route";
@@ -13,6 +14,11 @@ app.use(express.json());
 
 app.use('/user', userRouter);
 app.use('/product', productRouter);
+
+app.post('/image', upload.single('image'), (req, res) => {
+    //console.log(req.file);
+    console.log(req.body.name);
+});
 
 app.get('/', (req, res) => {
     res.json({message: "You have reached funkeraana api"});
