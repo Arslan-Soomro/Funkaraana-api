@@ -27,7 +27,7 @@ router.use((req, res, next) => {
 })
 
 //Route to get All Products
-router.get('/', async (req, res) => {
+router.get('/all', async (req, res) => {
     try{
         const [rows] = await db.execute("SELECT * FROM products");
         
@@ -43,11 +43,14 @@ router.get('/', async (req, res) => {
     }
 });
 
+
+
 //Route to insert a product
 router.post('/', async (req, res) => {
     try{
-        if(req.body.token){
 
+        if(req.body.token){ 
+            
             //FIXME remove any type
             const prodData: PRODUCT_DATA = {
                 user_id: req.body.USER.id,
@@ -55,25 +58,28 @@ router.post('/', async (req, res) => {
                 description: req.body.description,
                 price: req.body.price,
                 image: req.body.image,
-            }
+            };
 
-            const result: any = await insertIntoProduct(prodData);
-            if(result.error){
-                res.status(400).json({message: result.message});
-            }else{
-                res.status(200).json({message: "Product Inserted Succesfully"});
-            }
+            let result: any = await insertIntoProduct(prodData);
+            //result = {message: "Hello World", error: false};
+            const resStatus = result.error ? 400 : 200;
+
+
+            res.status(resStatus).json({message: result.message});
+            
+            res.end();
         }else{
             res.status(401).json({message: "Unauthorized Access, Invalid Token"});
         }
     }catch(err){
         console.log("Error@User:Signup: " + err.message);
-        res.status(500).json(SERVER_ERR);
+        //Fix this issue, occuring because you are sending more than one responses only 1 response per request is allowed
+        //if(!res.headersSent) res.status(500).json(SERVER_ERR);
     }
 });
 
 //Route to delete a product using an id
-router.post('/', async (req, res) => {
+router.post('/del', async (req, res) => {
     //Data -> id (product id)
     try{
         if(req.body.token){
@@ -87,6 +93,8 @@ router.post('/', async (req, res) => {
         }else{
             res.status(401).json({message: "Unauthorized Access, Invalid Token"});
         }
+
+        res.end();
     }catch(err){
         console.log("Error@DeleteProduct: " + err.message);
         res.status(500).json(SERVER_ERR);

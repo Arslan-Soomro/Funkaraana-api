@@ -69,7 +69,7 @@ router.post('/login', async (req, res) => {
     try{
         const err_message = "Invalid Username or Password";
         if(req.body && req.body.token){
-            //Incase a token is submitted it must be handled here
+            //Incase a token is submitted, it must be handled here
             
             //tokenData -> id, username
             let tokenData = verifyToken(req.body.token);
