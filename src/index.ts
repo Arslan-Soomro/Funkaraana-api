@@ -19,18 +19,10 @@ app.use('/product', productRouter);
 
 //Serves static files from uploads folder on host/uploads/filename.ext
 app.use('/uploads', express.static(path.join(__dirname, '../uploads'))); //both work the same app.use(express.static('uploads'));
-
-
-
-/*
-app.post('/image', upload.single('image'), (req, res) => {
-    console.log(req.file?.filename);
-    console.log(req.body.name);
-});
-*/
+app.use(express.static("public"));
 
 app.get('/', (req, res) => {
-    res.json({message: "You have reached funkeraana api"});
+    res.sendFile(path.join(__dirname, '../public', 'index.html'));
 });
 
 app.listen(PORT, () => {
