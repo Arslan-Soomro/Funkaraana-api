@@ -2,8 +2,9 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import database from "./database";
 
-import { JWT_SECRET } from "./global";
 import { PRODUCT_DATA, USER_DATA } from "./customTypes";
+
+const { JWT_SECRET } = process.env;
 
 const isOfType = (item: any, type: string) => {
     if(item && typeof(item) === type){
@@ -99,10 +100,14 @@ export const hashEncrypt = async (strToEncrypt: string) => {
 export const verifyToken = (token: string) => {
     try{
         //token data
-        const data = jwt.verify(token, JWT_SECRET);
+        const data = jwt.verify(token, (JWT_SECRET as string));
         return data;
     }catch(err){
         console.log("Error@TokenAuthentication: " + err.message);  
     }
     return null;
+};
+
+export const createToken = (tokenData: {id: number, username: string}) => {
+    return jwt.sign(tokenData, (JWT_SECRET as string), {expiresIn: '24h'});
 }

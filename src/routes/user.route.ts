@@ -5,11 +5,13 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 import { insertIntoUser, getUserBy, createUserTable } from '../utils/db_utils';
-import { validateName, validatePass, verifyToken } from '../utils/utils';
+import { createToken, validateName, validatePass, verifyToken } from '../utils/utils';
 import db from '../utils/database';
-import { SERVER_ERR, JWT_SECRET } from '../utils/global';
+import { SERVER_ERR } from '../utils/global';
 import { USER_DATA, USER_DATA_ALL } from "../utils/customTypes";
 import { stringify } from 'querystring';
+
+const { JWT_SECRET } = process.env;
 
 //Route for creating user table
 router.get('/createtable', async (req, res) => {
@@ -87,8 +89,7 @@ router.post('/login', async (req, res) => {
             //Verify Username and Password
 
             if(rows && await bcrypt.compare(req.body.password, rows.password)){
-                //Generate and respond with a token
-                const accessToken = jwt.sign({id: rows.id, username: rows.username}, JWT_SECRET, {expiresIn: '24h'});
+                const accessToken = createToken({id: rows.id, username: rows.username});
                 res.status(200).json({message: "Login Succesful", data: {token: accessToken}});
             }else{
                 res.status(400).json({message: err_message});

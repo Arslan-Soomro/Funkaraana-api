@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import upload from "./utils/multerUpload";
+import 'dotenv/config';
 
 import userRouter from "./routes/user.route";
 import productRouter from "./routes/product.route";

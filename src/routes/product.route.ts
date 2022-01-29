@@ -97,15 +97,15 @@ router.get("/id/:id", async (req, res) => {
     if (req.params && req.params.id) {
       const query = "SELECT * FROM products WHERE id = ?";
       const [rows] = await db.execute(query, [parseInt(req.params.id)]);
-      const prodData: any = rows;
+      let prodData: any = rows;
 
       if ((<object[]>rows).length == 0) {
         res.status(404).json({ message: "There are no Products" });
       } else {
-        for (let i = 0; i < prodData.length; i++) {
-          const currentUser = await getUserBy("id", prodData[i].userID);
-          prodData[i].seller = (currentUser as USER_DATA).name;
-        }
+          prodData = prodData[0];
+          const currentUser = await getUserBy("id", prodData.userID);
+          prodData.seller = (currentUser as USER_DATA).name;
+        
 
         res.status(200).json({ message: "Found Products", data: prodData });
       }
@@ -143,10 +143,7 @@ router.post("/", upload.single("image"), async (req, res) => {
       image: req.file?.filename!,
     };
 
-    console.log("Debugger");
-
     const validationRes = validateProductData(prodData);
-    console.log("Error Here");
 
     //There is no validation Error
     if (!validationRes.error) {
