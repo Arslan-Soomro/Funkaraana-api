@@ -11,17 +11,18 @@ export interface USER_DATA_ALL extends USER_DATA{
 };
 
 export interface PRODUCT_DATA_ALL{
-    user_id: number,
+    userID: number,
     id: number,
     name: string,
     description: string,
     price: number,
-    image: string
+    image: string,
+    seller?: string
 }
 
 
 export interface PRODUCT_DATA{
-    user_id: number,
+    userID: number,
     name: string,
     description: string,
     price: number,

@@ -118,11 +118,11 @@ export const insertIntoProduct = async (data: PRODUCT_DATA) => {
 };*/
 
 export const insertIntoProduct = async (data: PRODUCT_DATA) => {
-  if (data) {
+  if (data && await userExistsById(data.userID)) {
     const insertionQuery =
       "INSERT INTO products (userID, name, description, price, image) VALUES (?, ?, ?, ?, ?)";
     await db.execute(insertionQuery, [
-      data.user_id,
+      data.userID,
       data.name,
       data.description,
       data.price,

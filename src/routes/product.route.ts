@@ -3,13 +3,19 @@ const router = express.Router();
 
 import {
   createProductTable,
+  getUserBy,
   insertIntoProduct,
   productExistsById,
 } from "../utils/db_utils";
 import db from "../utils/database";
 import { SERVER_ERR } from "../utils/global";
 import { validateProductData, verifyToken } from "../utils/utils";
-import { PRODUCT_DATA } from "../utils/customTypes";
+import {
+  PRODUCT_DATA,
+  PRODUCT_DATA_ALL,
+  USER_DATA,
+  USER_DATA_ALL,
+} from "../utils/customTypes";
 import upload from "../utils/multerUpload";
 
 //Middleware to unfold token data
@@ -36,15 +42,78 @@ router.use((req, res, next) => {
 router.get("/all", async (req, res) => {
   try {
     const [rows] = await db.execute("SELECT * FROM products");
+    let prodData: any = rows;
 
     let resMsg = "Found Products";
     if ((<object[]>rows).length == 0) {
       resMsg = "There are no Products";
+    } else {
+      for (let i = 0; i < prodData.length; i++) {
+        const currentUser = await getUserBy("id", prodData[i].userID);
+        prodData[i].seller = (currentUser as USER_DATA).name;
+      }
     }
 
-    res.status(200).json({ message: resMsg, data: rows });
+    //console.log(prodData);
+
+    res.status(200).json({ message: resMsg, data: prodData });
   } catch (err) {
     console.log("Error@Products:get: " + err.message);
+    res.status(500).json(SERVER_ERR);
+  }
+});
+
+//get products of a user with specific id
+router.get("/user/:id", async (req, res) => {
+  try {
+    if (req.params && req.params.id) {
+      const query = "SELECT * FROM products WHERE userID = ?";
+      const [rows] = await db.execute(query, [parseInt(req.params.id)]);
+      const prodData: any = rows;
+
+      if ((<object[]>rows).length == 0) {
+        res.status(404).json({ message: "There are no Products" });
+      } else {
+        //Insert Seller Info
+        for (let i = 0; i < prodData.length; i++) {
+          const currentUser = await getUserBy("id", prodData[i].userID);
+          prodData[i].seller = (currentUser as USER_DATA).name;
+        }
+
+        res.status(200).json({ message: "Found Products", data: prodData });
+      }
+    } else {
+      res.status(400).json({ message: "Invalid Request" });
+    }
+  } catch (err) {
+    console.log("Error@Products:get:user:id " + err.message);
+    res.status(500).json(SERVER_ERR);
+  }
+});
+
+//Get a product with specific id
+router.get("/id/:id", async (req, res) => {
+  try {
+    if (req.params && req.params.id) {
+      const query = "SELECT * FROM products WHERE id = ?";
+      const [rows] = await db.execute(query, [parseInt(req.params.id)]);
+      const prodData: any = rows;
+
+      if ((<object[]>rows).length == 0) {
+        res.status(404).json({ message: "There are no Products" });
+      } else {
+        for (let i = 0; i < prodData.length; i++) {
+          const currentUser = await getUserBy("id", prodData[i].userID);
+          prodData[i].seller = (currentUser as USER_DATA).name;
+        }
+
+        res.status(200).json({ message: "Found Products", data: prodData });
+      }
+    } else {
+      res.status(400).json({ message: "Invalid Request" });
+    }
+  } catch (err) {
+    console.log("Error@Products:get:id " + err.message);
     res.status(500).json(SERVER_ERR);
   }
 });
@@ -67,13 +136,13 @@ router.post("/", upload.single("image"), async (req, res) => {
     }
 
     const prodData: PRODUCT_DATA = {
-      user_id: req.body.USER.id,
+      userID: req.body.USER.id,
       name: req.body.name,
       description: req.body.description,
       price: parseFloat(req.body.price),
       image: req.file?.filename!,
     };
-    
+
     console.log("Debugger");
 
     const validationRes = validateProductData(prodData);

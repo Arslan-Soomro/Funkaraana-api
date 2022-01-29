@@ -62,7 +62,7 @@ export const validateProductData = (data: PRODUCT_DATA): {message: string, error
     //Data -> user_id, name, description, price, image
     if(data){
         if(data.name && data.description && data.price && data.image){
-            if(isOfType(data.user_id, "number")){
+            if(isOfType(data.userID, "number")){
                 if(validateName(data.name)){
                     if(validateName(data.description)){
                         if(isOfType(data.price, "number")){
